@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  clerkId String @unique
+  email   String @unique
+
+  entries NotesEntry[]
+  todos   Todo[] // Relationship to Todo model
+}
+
+model NotesEntry {
+  id        String   @id @default(uuid())
+  title     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User @relation(fields: [userId], references: [id])
+
+  content String @db.Text
+
+  @@index([userId])
+}
+
+model Todo {
+  id        String   @id @default(cuid())
+  title     String
+  completed Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User @relation(fields: [userId], references: [id]) // Relationship to User model
+
+  @@index([userId])
+}
